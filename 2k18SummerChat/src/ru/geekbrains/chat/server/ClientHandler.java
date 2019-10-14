@@ -38,6 +38,7 @@ public class ClientHandler {
                                 if (!server.isNickBusy(newNick)) {
                                     sendMsg("/authok");
                                     nick = newNick;
+                                    blackList = AuthService.LoadBlackList(nick);
                                     server.subscribe(this);
                                     break;
                                 } else {
@@ -61,8 +62,12 @@ public class ClientHandler {
                             }
                             if (str.startsWith("/blacklist ")) { // /blacklist nick3
                                 String[] tokens = str.split(" ");
-                                blackList.add(tokens[1]);
-                                sendMsg("Вы добавили пользователя " + tokens[1] + " в черный список");
+                                if (AuthService.addBlackList(nick,tokens[1])) {
+                                    blackList.add(tokens[1]);
+                                    sendMsg("Вы добавили пользователя " + tokens[1] + " в черный список");
+                                } else {
+                                    sendMsg("Ошибка добавления в черный список. \nДанного пользователя нет в БД или вы пытаетесь добавить сами себя.");
+                                }
                             }
                         } else {
                             server.broadcastMsg(this, nick + ": " + str);
